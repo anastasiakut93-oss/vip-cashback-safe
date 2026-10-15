@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сейф в истории начисления</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+  :root {
+    --page: #1B1D21; --modal: #292D32; --w4: rgba(255,255,255,.04); --w8: rgba(255,255,255,.08);
+    --w12: rgba(255,255,255,.12); --w48: rgba(255,255,255,.48); --w64: rgba(255,255,255,.64);
+    --w88: rgba(255,255,255,.88); --red: #EE7B76;
+    --accent: #EBBC5E; --accent-ink: rgba(30,33,37,.88); --accent12: rgba(235,188,94,.12); --glow: 235,188,94;
+    --total: linear-gradient(90deg, #EFDDB9, #DEC48F); --overlay: #141618; --sheet: var(--modal);
+  }
+  [data-theme="pari"] {
+    --page: #121416; --modal: #292D32; --sheet: #202327; --overlay: #0D0E0F;
+    --accent: #00C7B1; --accent-ink: rgba(18,18,18,.88); --accent12: rgba(0,199,177,.12);
+    --total: linear-gradient(90deg, #FFFFFF, #FFFFFF);
+  }
+  .tabs { display: inline-flex; background: var(--w4); border-radius: 8px; padding: 2px; gap: 2px; margin: 0 0 16px; }
+  .tabs button { border: 0; background: transparent; color: var(--w64); font: inherit; font-weight: 500; padding: 6px 14px; border-radius: 6px; cursor: pointer; }
+  .tabs button[aria-selected="true"] { background: var(--w12); color: #fff; }
+  .tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--w88); font: 14px/20px Inter, system-ui, sans-serif; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 32px 24px 56px; }
+  h1 { font-size: 24px; line-height: 32px; margin: 0 0 4px; color: #fff; }
+  .sub { color: var(--w64); margin: 0 0 20px; max-width: 820px; }
+
+  /* controls */
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; background: var(--modal); border-radius: 12px; padding: 12px 16px; margin-bottom: 24px; }
+  .btn { border: 0; border-radius: 8px; font: inherit; font-weight: 500; padding: 8px 14px; cursor: pointer; background: var(--w8); color: var(--w88); }
+  .btn:hover { background: var(--w12); }
+  .btn.gold { background: var(--accent); color: var(--accent-ink); }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  label.chk { display: inline-flex; align-items: center; gap: 6px; color: var(--w64); cursor: pointer; }
+  .sl { display: grid; gap: 2px; min-width: 180px; }
+  .sl span { display: flex; justify-content: space-between; color: var(--w64); font-size: 13px; }
+  .sl b { color: var(--w88); font-weight: 500; font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); }
+  .scrub { display: grid; grid-template-columns: 1fr 56px; gap: 8px; align-items: center; min-width: 220px; flex: 1; }
+  .scrub output { color: var(--w64); font-variant-numeric: tabular-nums; text-align: right; }
+  .muted { color: var(--w48); font-size: 12px; line-height: 16px; }
+  .seg { display: inline-flex; background: var(--w4); border-radius: 8px; padding: 2px; gap: 2px; }
+  .seg button { border: 0; background: transparent; color: var(--w64); font: inherit; font-weight: 500; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--w12); color: #fff; }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .screens { display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+  .col-cap { color: var(--w48); font-size: 12px; line-height: 16px; margin: 0 0 8px; }
+
+  /* claim card, shared */
+  .claim { border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+    background: radial-gradient(var(--glow-size) at var(--glow-x) var(--glow-y), rgba(var(--glow),.26), rgba(var(--glow),.06) 60%, rgba(var(--glow),0) 100%), var(--w4); }
+  [data-theme="pari"] .claim { background:
+      linear-gradient(180deg, rgba(104,104,104,.7), rgba(24,25,27,0)),
+      radial-gradient(var(--pari-glow) at var(--pari-at), rgba(255,255,255,.3), rgba(255,255,255,.1) 50%, rgba(255,255,255,0) 90%),
+      var(--w4); }
+  /* radial highlight converted from the Figma gradient transforms (1429:17840, 1429:17888) */
+  [data-theme="pari"] .claim.desk { --pari-glow: 203px 167px; --pari-at: 105% 108%; }
+  [data-theme="pari"] .claim.mob { --pari-glow: 224px 223px; --pari-at: 100% 94%; }
+  .claim .row { display: flex; align-items: center; gap: 12px; }
+  .claim canvas { width: 80px; height: 80px; flex: none; display: block; }
+  .claim .label { color: var(--w64); font-size: 14px; line-height: 18px; font-weight: 500; }
+  .claim .total { font-size: 36px; line-height: 44px; font-weight: 700; margin-top: 4px;
+    background: var(--total); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .gbtn { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 16px; border-radius: 6px;
+    background: var(--accent); color: var(--accent-ink); font-weight: 500; font-size: 14px; line-height: 18px; white-space: nowrap; cursor: default; user-select: none; }
+  .claim.desk { --glow-size: 35% 89%; --glow-x: 10%; --glow-y: 50%; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 20px 12px 12px; }
+  .claim.desk .gbtn { width: 144px; }
+  .claim.mob { --glow-size: 40% 83%; --glow-x: 16%; --glow-y: 42%; display: grid; gap: 16px; padding: 16px; }
+  .claim.mob .gbtn { width: 100%; }
+
+  /* desktop modal */
+  .modal { width: 600px; background: var(--modal); border-radius: 10px; padding: 32px 40px 16px; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,.45); }
+  .modal .close { position: absolute; top: 20px; right: 20px; color: var(--w48); font-size: 24px; }
+  .content { display: grid; gap: 20px; }
+  .title { margin: 0; font-size: 24px; line-height: 32px; font-weight: 700; color: #fff; }
+  .desc { margin: 16px 0 0; font-size: 16px; line-height: 22px; color: var(--w88); }
+  .thead, .trow { display: grid; grid-template-columns: 134px minmax(0,1fr) auto 24px; align-items: center; gap: 12px; padding: 0 12px; }
+  .thead { height: 36px; background: var(--w4); border-radius: 4px; font-weight: 500; color: var(--w88); margin-bottom: 4px; }
+  .trow { min-height: 56px; border-bottom: 1px solid var(--w8); padding-top: 8px; padding-bottom: 8px; }
+  .r { text-align: right; }
+  .sum { text-align: right; display: grid; justify-items: end; }
+  .amt { font-size: 16px; line-height: 20px; font-weight: 600; color: #fff; }
+  .calc { color: var(--w64); }
+  .capg { font-size: 12px; line-height: 16px; color: var(--accent); }
+  .capr { font-size: 12px; line-height: 16px; color: var(--red); }
+  .chev { color: var(--w48); font-size: 16px; justify-self: end; }
+
+  /* mobile sheet */
+  .phone { width: 360px; height: 800px; background: var(--overlay); overflow: hidden; padding-top: 44px; }
+  .sheet { background: var(--sheet); border-radius: 16px 16px 0 0; height: 100%; display: flex; flex-direction: column; }
+  .sheet-head { height: 72px; border-bottom: 1px solid var(--w8); position: relative; flex: none; }
+  .grab { width: 64px; height: 4px; border-radius: 2px; background: var(--w48); position: absolute; top: 12px; left: 50%; transform: translateX(-50%); }
+  .sh-title { position: absolute; left: 0; right: 0; top: 34px; text-align: center; font-size: 18px; line-height: 24px; font-weight: 600; color: #fff; }
+  .collapse { position: absolute; right: 16px; top: 30px; width: 28px; height: 28px; border-radius: 6px; background: var(--w8); display: grid; place-items: center; color: var(--w88); }
+  .sheet-body { overflow: hidden; flex: 1; }
+  .m-head { padding: 16px 16px 0; display: grid; gap: 12px; }
+  .m-desc { margin: 0; font-size: 14px; line-height: 18px; color: var(--w88); }
+  .m-list { padding: 16px 16px 32px; display: grid; gap: 4px; }
+  .mrow { background: var(--w4); border-radius: 8px; padding: 12px; }
+  .mrow .line { display: grid; grid-template-columns: minmax(0,1fr) auto 20px; gap: 8px; align-items: center; }
+  .mrow .d { font-size: 12px; line-height: 16px; color: var(--w64); }
+  .mrow .v { font-size: 14px; line-height: 20px; color: var(--w88); font-weight: 500; }
+  .mrow .calc { font-size: 14px; }
+  .details { border-top: 1px solid var(--w8); margin-top: 12px; padding-top: 12px; display: grid; gap: 12px; }
+  .details .t { color: var(--w64); font-size: 13px; line-height: 18px; margin-bottom: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { background: var(--accent12); color: var(--accent); border-radius: 4px; padding: 4px 8px; font-weight: 600; font-size: 14px; line-height: 18px; }
+
+  /* big stage */
+  .stage { width: 360px; background: var(--modal); border-radius: 12px; overflow: hidden; }
+  #view { display: block; width: 360px; height: 360px; cursor: grab; touch-action: none; }
+  #view:active { cursor: grabbing; }
+  .stage p { margin: 0; padding: 10px 14px 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>История начисления с 3D-сейфом</h1>
+  <p style="margin:0 0 16px;color:var(--w64)"><a href="files/" style="color:var(--accent);text-decoration:none">Файлы анимации для разработки</a></p>
+  <div class="tabs" role="tablist" aria-label="Стиль">
+    <button role="tab" aria-selected="true" data-theme="gold">Fonbet</button>
+    <button role="tab" aria-selected="false" data-theme="pari">Pari</button>
+  </div>
+
+  <div class="bar">
+    <button class="btn gold" id="play">Проиграть</button>
+    <button class="btn" id="reset">Закрыть сейф</button>
+    <div class="seg" id="anim" role="group" aria-label="Анимация">
+      <button aria-pressed="true" data-anim="open">Открытие</button>
+      <button aria-pressed="false" data-anim="spill">Монеты вываливаются</button>
+    </div>
+    <label class="chk"><input type="checkbox" id="loop" checked> Повторять</label>
+    <label class="sl"><span>Угол двери<b id="v_door"></b></span><input type="range" id="s_door" min="60" max="130" step="1" value="88"></label>
+    <label class="sl"><span>Скорость<b id="v_speed"></b></span><input type="range" id="s_speed" min="0.5" max="1.5" step="0.05" value="1"></label>
+    <div class="scrub"><input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Таймлайн"><output id="time">0.00 с</output></div>
+  </div>
+
+  <div class="screens">
+    <div>
+      <p class="col-cap">Десктоп · модалка 600</p>
+      <div class="modal">
+        <i class="ph ph-x close" aria-hidden="true"></i>
+        <div class="content">
+          <div>
+            <h2 class="title">История начисления</h2>
+            <p class="desc">Кешбэк за неделю рассчитываем в&nbsp;понедельник с&nbsp;12:00 до&nbsp;18:00&nbsp;МСК. Забрать его можно в&nbsp;течение двух недель.</p>
+          </div>
+          <div class="claim desk">
+            <div class="row">
+              <canvas class="icon" width="160" height="160" aria-label="Сейф"></canvas>
+              <div><div class="label">Можно забрать</div><div class="total">9&nbsp;500</div></div>
+            </div>
+            <span class="gbtn" aria-hidden="true">Забрать кешбэк</span>
+          </div>
+          <div class="table" id="dTable"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="col-cap">Мобильная · шторка 360</p>
+      <div class="phone">
+        <div class="sheet">
+          <div class="sheet-head">
+            <div class="grab"></div>
+            <div class="sh-title">История начисления</div>
+            <div class="collapse"><i class="ph ph-caret-down" aria-hidden="true"></i></div>
+          </div>
+          <div class="sheet-body">
+            <div class="m-head">
+              <p class="m-desc">Кешбэк за неделю рассчитываем в&nbsp;понедельник с&nbsp;12:00 до&nbsp;18:00&nbsp;МСК. Забрать его можно в&nbsp;течение двух недель.</p>
+              <div class="claim mob">
+                <div class="row">
+                  <canvas class="icon" width="160" height="160" aria-label="Сейф"></canvas>
+                  <div><div class="label">Можно забрать</div><div class="total">9&nbsp;500</div></div>
+                </div>
+                <span class="gbtn" aria-hidden="true">Забрать кешбэк</span>
+              </div>
+            </div>
+            <div class="m-list" id="mList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="col-cap">Сейф крупно</p>
+      <div class="stage">
+        <canvas id="view" aria-label="3D сейф крупно"></canvas>
+        <p class="muted">Тяни мышью, чтобы повернуть, колесо приближает. Пробел проигрывает.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const $ = id => document.getElementById(id);
+const NB = ' ';
+
+/* ---------- history tables (same data on both screens) ---------- */
+const ROWS = [
+  { date: '14.10.26, 12:35', vip: 'Gold Pro', calc: true },
+  { date: '28.09.26, 15:10', vip: 'Silver Elite', amt: '6' + NB + '300', cap: ['g', 'Можно забрать до 31' + NB + 'октября'] },
+  { date: '21.09.26, 12:20', vip: 'Silver Elite', amt: '6' + NB + '300', cap: ['r', 'Сгорит 24' + NB + 'октября'] },
+  { date: '14.09.26, 12:50', vip: 'Silver Pro', amt: '4' + NB + '100' },
+  { date: '07.09.26, 13:05', vip: 'Silver Pro', amt: '3' + NB + '900' },
+  { date: '31.08.26, 12:40', vip: 'Bronze Elite', amt: '1' + NB + '500' }
+];
+const sumHtml = r => r.calc ? '<span class="calc">Идёт расчёт</span>'
+  : `<span class="amt">+${NB}${r.amt}</span>${r.cap ? `<span class="cap${r.cap[0]}">${r.cap[1]}</span>` : ''}`;
+$('dTable').innerHTML = `<div class="thead"><span>Дата</span><span>Статус</span><span class="r">Сумма</span><span></span></div>` +
+  ROWS.map(r => `<div class="trow"><span>${r.date}</span><span>${r.vip}</span><span class="sum">${sumHtml(r)}</span><i class="ph ph-caret-down chev" aria-hidden="true"></i></div>`).join('');
+$('mList').innerHTML = ROWS.map((r, i) => `<div class="mrow"><div class="line"><div><div class="d">${r.date}</div><div class="v">${r.vip}</div></div>
+  <span class="sum">${sumHtml(r)}</span><i class="ph ph-caret-${i === 0 ? 'up' : 'down'} chev" aria-hidden="true"></i></div>
+  ${i === 0 ? `<div class="details"><div><div class="t">Предварительный расчёт</div><div class="chips"><span class="chip">5${NB}000 фрибетами</span></div></div>
+  <div><div class="t">Номиналы</div><div class="chips"><span class="chip">2 × 1${NB}000</span><span class="chip">4 × 500</span><span class="chip">5 × 200</span></div></div></div>` : ''}</div>`).join('');
+
+/* ---------- renderer, scene, cameras ---------- */
+const canvas = $('view');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.setClearColor(0x000000, 0);
+renderer.setSize(360, 360, false);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+
+const CAM_POS = new THREE.Vector3(-2.4, 1.15, 6.9);
+const CAM_TARGET = new THREE.Vector3(0.3, 0.1, 0.45);
+const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+camera.position.copy(CAM_POS);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(CAM_TARGET); controls.enableDamping = true; controls.enablePan = false;
+controls.minDistance = 3.5; controls.maxDistance = 10;
+// fixed camera for the 80 px icon
+const iconCam = new THREE.PerspectiveCamera(28, 1, 0.1, 100);
+iconCam.position.copy(CAM_POS); iconCam.lookAt(CAM_TARGET); iconCam.zoom = 1.18; iconCam.updateProjectionMatrix();
+
+const key = new THREE.DirectionalLight(0xfff0d8, 2.2); key.position.set(-3, 4, 5); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffe2b0, 0.6); fill.position.set(4, 1, 3); scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffffff, 1.2); rim.position.set(2, 3, -4); scene.add(rim);
+const glint = new THREE.PointLight(0xfff4e0, 0, 0, 2); glint.position.set(-3, 0.8, 2); scene.add(glint);
+
+/* ---------- materials ---------- */
+const gold = new THREE.MeshPhysicalMaterial({ color: 0xE3BA72, metalness: 1, roughness: 0.3, clearcoat: 0.15, clearcoatRoughness: 0.4 });
+const goldDouble = gold.clone(); goldDouble.side = THREE.DoubleSide;
+const trimDouble = gold.clone(); trimDouble.side = THREE.DoubleSide;
+const wheelMat = gold.clone();
+const goldInner = new THREE.MeshPhysicalMaterial({ color: 0x9C7330, metalness: 1, roughness: 0.5, side: THREE.DoubleSide });
+const goldCoin = new THREE.MeshPhysicalMaterial({ color: 0xE9C171, metalness: 1, roughness: 0.22 });
+
+/* ---------- geometry helpers ---------- */
+const V2 = (x, y) => new THREE.Vector2(x, y);
+function arcPts(cx, cy, r, a0, a1, n = 8) {
+  const out = [];
+  for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; out.push(V2(cx + r * Math.cos(a), cy + r * Math.sin(a))); }
+  return out;
+}
+const lathe = (pts, mat) => { const m = new THREE.Mesh(new THREE.LatheGeometry(pts, 128), mat); m.rotation.x = Math.PI / 2; return m; };
+
+/* ---------- model ---------- */
+const root = new THREE.Group(); scene.add(root);
+const inner = new THREE.Group(); root.add(inner);
+
+const R = 1, F = 0.42, B = -0.6, b = 0.07, O = 0.82, FL = -0.52;
+const shell = [V2(0.001, B), ...arcPts(R - b, B + b, b, -Math.PI / 2, 0), ...arcPts(R - b, F - b, b, 0, Math.PI / 2),
+  V2(0.925, F - 0.012), V2(0.905, F - 0.012), V2(0.9, F), ...arcPts(O + 0.035, F - 0.035, 0.035, Math.PI / 2, Math.PI)];
+inner.add(lathe(shell, goldDouble));
+const cavity = [V2(O, F - 0.035), V2(O, FL + 0.06), ...arcPts(O - 0.06, FL + 0.06, 0.06, 0, -Math.PI / 2), V2(0.001, FL)];
+inner.add(lathe(cavity, goldInner));
+
+for (const y of [-0.32, 0.32]) {
+  const br = new THREE.Mesh(new RoundedBoxGeometry(0.16, 0.12, 0.1, 3, 0.025), gold); br.position.set(0.92, y, 0.46); inner.add(br);
+}
+const nub = new THREE.Mesh(new RoundedBoxGeometry(0.08, 0.16, 0.06, 3, 0.02), gold); nub.position.set(-0.86, 0, 0.45); inner.add(nub);
+
+// coins: big and thick, resting on the curved bottom of the cavity
+const CR = 0.46, CH = 0.07;
+// straight side, tiny chamfer; doubled points keep the flat faces flat-shaded so the edges stay crisp
+const ch = 0.012, e = 0.002;
+const coinGeo = new THREE.LatheGeometry([V2(0.001, -CH), V2(CR - ch - e, -CH), V2(CR - ch, -CH), V2(CR, -CH + ch), V2(CR, -CH + ch + e),
+  V2(CR, CH - ch - e), V2(CR, CH - ch), V2(CR - ch, CH), V2(CR - ch - e, CH), V2(0.001, CH)], 96);
+const coinRingGeo = new THREE.TorusGeometry(CR - 0.07, 0.009, 10, 96);
+const STACK = [[0, 0, 0], [0.022, -0.016, 0.6], [-0.02, 0.012, 1.3], [0.016, 0.02, 2.1],
+  [-0.018, -0.01, 2.9], [0.02, 0.016, 3.6], [-0.012, -0.018, 4.4], [0.018, 0.01, 5.1]]
+  .map(([jx, jz, ry], i) => ({ x: jx, y: -0.675 + CH + i * (2 * CH + 0.004), z: -0.11 + jz, ry }));
+const coins = STACK.map(st => {
+  const c = new THREE.Group();
+  c.add(new THREE.Mesh(coinGeo, goldCoin));
+  const ring = new THREE.Mesh(coinRingGeo, goldCoin); ring.rotation.x = Math.PI / 2; ring.position.y = CH; c.add(ring);
+  c.position.set(st.x, st.y, st.z); c.rotation.set(0, st.ry, 0); inner.add(c);
+  return c;
+});
+const innerLight = new THREE.PointLight(0xffc46b, 0, 1.6, 2); innerLight.position.set(-0.15, -0.2, -0.05); inner.add(innerLight);
+
+// door on a pivot at the hinge
+const doorPivot = new THREE.Group(); doorPivot.position.set(0.86, 0, F); inner.add(doorPivot);
+const door = new THREE.Group(); door.position.set(-0.86, 0, 0); doorPivot.add(door);
+// door: the edge band (side and back plug) takes the trim material, the front face the body material
+door.add(lathe([V2(0.001, -0.06), V2(0.78, -0.06)], goldDouble));
+door.add(lathe([V2(0.78, -0.06), V2(0.78, 0), V2(0.8, 0), ...arcPts(0.77, 0.07, 0.03, 0, Math.PI / 2)], trimDouble));
+door.add(lathe([V2(0.77, 0.1), V2(0.7, 0.1), V2(0.69, 0.115), V2(0.67, 0.12), V2(0.001, 0.12)], goldDouble));
+const groove = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.008, 12, 128), gold); groove.position.z = 0.12; door.add(groove);
+for (const y of [-0.32, 0.32]) {
+  const arm = new THREE.Mesh(new RoundedBoxGeometry(0.16, 0.08, 0.06, 3, 0.02), gold); arm.position.set(0.82, y, 0.05); door.add(arm);
+}
+for (let k = 0; k < 6; k++) {
+  const a = k * Math.PI / 3 + Math.PI / 6;
+  const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.12, 20), gold);
+  bolt.rotation.z = a - Math.PI / 2; bolt.position.set(0.8 * Math.cos(a), 0.8 * Math.sin(a), -0.03); door.add(bolt);
+}
+const backRing = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.012, 12, 96), goldInner); backRing.position.z = -0.061; door.add(backRing);
+// wheel handle, bigger
+const wheel = new THREE.Group(); wheel.position.z = 0.12; wheel.scale.setScalar(1.45); door.add(wheel);
+const cyl = (r1, r2, h) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, 48), wheelMat); m.rotation.x = Math.PI / 2; return m; };
+const base = cyl(0.14, 0.15, 0.03); base.position.z = 0.015; wheel.add(base);
+const hub = cyl(0.075, 0.075, 0.17); hub.position.z = 0.085; wheel.add(hub);
+const cap = cyl(0.085, 0.085, 0.03); cap.position.z = 0.17; wheel.add(cap);
+const ring = new THREE.Mesh(new THREE.TorusGeometry(0.27, 0.026, 20, 96), wheelMat); ring.position.z = 0.14; wheel.add(ring);
+for (let k = 0; k < 4; k++) {
+  const a = k * Math.PI / 2;
+  const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.2, 16), wheelMat);
+  sp.position.set(0.17 * Math.cos(a), 0.17 * Math.sin(a), 0.14); sp.rotation.z = a - Math.PI / 2; wheel.add(sp);
+}
+
+/* ---------- themes ---------- */
+const THEMES = {
+  gold: { body: { color: 0xE3BA72, metalness: 1, roughness: 0.3, clearcoat: 0.15, clearcoatRoughness: 0.4 },
+          trim: { color: 0xE3BA72, metalness: 1, roughness: 0.3, clearcoat: 0.15, clearcoatRoughness: 0.4 },
+          inner: { color: 0x9C7330, metalness: 1, roughness: 0.5 }, coin: { color: 0xE9C171, metalness: 1, roughness: 0.22 },
+          glow: 0xffc46b, glint: 0xfff4e0, key: 0xfff0d8, fill: 0xffe2b0 },
+  pari: { body: { color: 0xCDD3DA, metalness: 1, roughness: 0.28, clearcoat: 0.3, clearcoatRoughness: 0.2 },
+          trim: { color: 0xE4E8EC, metalness: 1, roughness: 0.14, clearcoat: 0.4, clearcoatRoughness: 0.1 },
+          wheel: { color: 0x0A7C9C, metalness: 0.45, roughness: 0.3, clearcoat: 0.7, clearcoatRoughness: 0.15 },
+          inner: { color: 0x7D868F, metalness: 1, roughness: 0.42 },
+          coin: { color: 0x0A7C9C, metalness: 0.45, roughness: 0.28, clearcoat: 0.7, clearcoatRoughness: 0.15 },
+          glow: 0xCFFFF8, glint: 0xEAF6FF, key: 0xF4F8FF, fill: 0xD8ECFF }
+};
+function setTheme(id) {
+  const t = THEMES[id];
+  const set = (m, v) => { m.color.setHex(v.color); m.metalness = v.metalness; m.roughness = v.roughness;
+    m.clearcoat = v.clearcoat ?? 0; m.clearcoatRoughness = v.clearcoatRoughness ?? 0; m.needsUpdate = true; };
+  set(goldDouble, t.body); set(gold, t.trim); set(trimDouble, t.trim); set(wheelMat, t.wheel || t.trim); set(goldInner, t.inner); set(goldCoin, t.coin);
+  innerLight.color.setHex(t.glow); glint.color.setHex(t.glint); key.color.setHex(t.key); fill.color.setHex(t.fill);
+  document.body.dataset.theme = id;
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.theme === id));
+}
+document.querySelector('.tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setTheme(b.dataset.theme); });
+
+/* ---------- motion: wheel turns, door opens, glow, glint ---------- */
+const P = { door: 88, speed: 1 };
+const DURS = { open: 2.3, spill: 3.7 }, HOLD = 1.6;
+let DUR = DURS.open;
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const seg = (t, a, b) => clamp01((t - a) / (b - a));
+const eio = p => p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+const FLOOR = -1 + CH;
+// spill: the top four coins leave one at a time. Each slides along the coin below to the edge of the stack,
+// tips forward (front edge down) and falls with a half flip, then settles flat on the floor in its own spot.
+const SPILL = [
+  { x: -0.18, z: 1.88, ry: 0.4 },
+  { x: 0.34, z: 1.06, ry: 1.3 },
+  { x: -0.62, z: 1.00, ry: 2.2 },
+  { x: -1.08, z: 1.78, ry: 0.9 }
+];
+const SPILL_T0 = 1.25, SPILL_GAP = 0.32, SLIDE = 0.22;
+function spillCoin(c, k, t) {
+  const s = SPILL[k], b = STACK[7 - k];
+  const u = t - (SPILL_T0 + k * SPILL_GAP);
+  const zS = b.z + 0.5, xS = b.x + (s.x - b.x) * 0.08, floorY = FLOOR + 0.002 * k;
+  const fall = 0.32 + 0.12 * (b.y - FLOOR);
+  let x = b.x, y = b.y, z = b.z, rx = 0;
+  if (u > 0) {
+    const pA = clamp01(u / SLIDE), e = pA * pA * (3 - 2 * pA);
+    x = b.x + (xS - b.x) * e; z = b.z + (zS - b.z) * e;
+    if (u > SLIDE) {
+      const p = clamp01((u - SLIDE) / fall);
+      x = xS + (s.x - xS) * p; z = zS + (s.z - zS) * p;
+      y = b.y + (floorY - b.y) * p * p;
+      rx = Math.PI * Math.pow(p, 1.6);
+      if (p >= 1) {
+        const v = u - SLIDE - fall;
+        y = floorY + 0.05 * Math.exp(-9 * v) * Math.abs(Math.sin(15 * v));
+        rx = Math.PI + 0.12 * Math.exp(-8 * v) * Math.sin(17 * v);
+      }
+    }
+  }
+  c.position.set(x, y, z); c.rotation.set(rx, s.ry, 0);
+}
+function apply(t) {
+  const sp = ui.anim === 'spill';
+  wheel.rotation.z = Math.PI * eio(seg(t, 0.1, 0.7));
+  doorPivot.rotation.y = THREE.MathUtils.degToRad(P.door * eio(seg(t, 0.6, sp ? 1.45 : 1.65)));
+  innerLight.intensity = 1.1 * seg(t, 0.7, 1.4);
+  const g = sp ? seg(t, 2.9, 3.65) : seg(t, 1.45, 2.25);
+  glint.position.x = -3 + 6 * g; glint.intensity = g > 0 && g < 1 ? 14 * Math.sin(Math.PI * g) : 0;
+  for (let i = 4; i < 8; i++) { coins[i].visible = sp; if (sp) spillCoin(coins[i], 7 - i, t); }
+}
+
+/* ---------- UI ---------- */
+const ui = { t: 0, playing: false, loop: true, hold: 0, anim: 'open' };
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const icons = [...document.querySelectorAll('canvas.icon')].map(c => c.getContext('2d'));
+for (const [k, fmt] of [['door', v => v + '°'], ['speed', v => '×' + v.toFixed(2)]]) {
+  const inp = $('s_' + k), out = $('v_' + k);
+  const upd = () => { P[k] = parseFloat(inp.value); out.textContent = fmt(P[k]); };
+  inp.addEventListener('input', upd); upd();
+}
+const play = () => { ui.t = 0; ui.hold = 0; ui.playing = true; };
+// framing: the spill variant needs room for the coins in front of the safe
+const FRAMES = { open: { target: CAM_TARGET, dist: 1, zoom: 1.18 }, spill: { target: new THREE.Vector3(0.2, -0.22, 0.85), dist: 1.12, zoom: 1.12 } };
+function setAnim(id) {
+  ui.anim = id; DUR = DURS[id];
+  const f = FRAMES[id];
+  const pos = f.target.clone().add(CAM_POS.clone().sub(CAM_TARGET).multiplyScalar(f.dist));
+  iconCam.position.copy(pos); iconCam.lookAt(f.target); iconCam.zoom = f.zoom; iconCam.updateProjectionMatrix();
+  camera.position.copy(pos); controls.target.copy(f.target);
+  document.querySelectorAll('#anim button').forEach(b => b.setAttribute('aria-pressed', b.dataset.anim === id));
+  play();
+}
+$('anim').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setAnim(b.dataset.anim); });
+$('play').addEventListener('click', play);
+$('reset').addEventListener('click', () => { ui.playing = false; ui.t = 0; });
+$('loop').addEventListener('change', e => { ui.loop = e.target.checked; });
+$('scrub').addEventListener('input', e => { ui.playing = false; ui.t = DUR * e.target.value / 1000; });
+window.addEventListener('keydown', e => { if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); play(); } });
+
+/* ---------- render: icon view into the corner, copied to the cards, then the big view ---------- */
+const ICON = 160;
+function render() {
+  apply(Math.min(ui.t, DUR));
+  controls.update();
+  const pr = renderer.getPixelRatio(), H = canvas.height;
+  renderer.setScissorTest(true);
+  renderer.setViewport(0, 0, ICON, ICON); renderer.setScissor(0, 0, ICON, ICON);
+  renderer.render(scene, iconCam);
+  const s = ICON * pr;
+  for (const ctx of icons) { ctx.clearRect(0, 0, 160, 160); ctx.drawImage(canvas, 0, H - s, s, s, 0, 0, 160, 160); }
+  renderer.setViewport(0, 0, 360, 360); renderer.setScissor(0, 0, 360, 360);
+  renderer.setScissorTest(false);
+  renderer.render(scene, camera);
+  $('scrub').value = Math.round(1000 * Math.min(ui.t, DUR) / DUR);
+  $('time').textContent = Math.min(ui.t, DUR).toFixed(2) + ' с';
+}
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (ui.playing) {
+    ui.t += dt * P.speed;
+    if (ui.t >= DUR) {
+      ui.t = DUR; ui.hold += dt;
+      if (ui.hold > HOLD) { if (ui.loop) { ui.t = 0; ui.hold = 0; } else ui.playing = false; }
+    }
+  }
+  render();
+  requestAnimationFrame(tick);
+}
+
+
+setTheme('gold');
+if (!reduce) play();
+requestAnimationFrame(tick);
+window.__safe = { ui, P, apply, render, setTheme, renderer, scene, iconCam, get DUR() { return DUR; } };
+</script>
+</body>
+</html>
