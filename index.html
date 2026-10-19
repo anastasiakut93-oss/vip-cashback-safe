@@ -15,7 +15,7 @@
     --btn: #EBBC5E; --btn-ink: rgba(17,17,17,.88); --accent-text: #EBBC5E; --negative: #CC5B5A;
     --ray: 255,236,186; --dust: 255,244,214;
     /* market tokens: same gradients in both brands, only these values change */
-    --claim-glow: 235,188,94; --claim-safe-op: .4; --promo-fill-0: #292D32; --promo-stroke-200: #3C4149;
+    --claim-glow: 235,188,94; --claim-safe-op: .4; --promo-fill-0: #292D32;
     --story-glow-0: rgba(235,188,94,.28); --story-glow-100: rgba(235,188,94,0); --story-orb: rgba(235,188,94,.34);
     /* safe image inside the fixed 80 / 64 px container, as the Pari mockups */
     --ic-open: 100%; --ic-closed: 90%; --ic-closed-s64: 111%;
@@ -107,8 +107,8 @@
   .mrow .st { font-size: 16px; line-height: 20px; font-weight: 500; color: #fff; }
 
   /* claim card */
-  /* card: promo-dark fill/0 + stroke/200; glow = claim/glow token, opacity on the layer (26%) */
-  .card { position: relative; border-radius: 12px; padding: 14px; box-shadow: inset 0 0 0 2px var(--promo-stroke-200);
+  /* card: promo-dark fill/0, stroke transparent/white8; glow = claim/glow token, opacity on the layer (26%) */
+  .card { position: relative; border-radius: 12px; padding: 14px; box-shadow: inset 0 0 0 2px var(--w8);
     background: radial-gradient(var(--gs) at var(--gx) var(--gy), rgba(var(--claim-glow),.26) 0, rgba(var(--claim-glow),0) 80%), var(--promo-fill-0); }
   .card.d { --gs: 35% 89%; --gx: 10%; --gy: 50%; display: flex; align-items: center; gap: 12px; }
   .card.m { --gs: 40% 83%; --gx: 16%; --gy: 42%; display: grid; gap: 12px; }
