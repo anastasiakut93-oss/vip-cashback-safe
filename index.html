@@ -12,12 +12,19 @@
     --page: #17181B; --panel: #212328; --modal: #292D32; --w4: rgba(255,255,255,.04); --w8: rgba(255,255,255,.08);
     --w12: rgba(255,255,255,.12); --w48: rgba(255,255,255,.48); --w64: rgba(255,255,255,.64); --w88: rgba(255,255,255,.88);
     --red: #E18484; --sheet: #292D32; --phone-top: #141618;
-    --btn: #EBBC5E; --btn-ink: rgba(17,17,17,.88); --accent-text: #EBBC5E; --warn: #DEC48F;
-    --glow: 235,188,94; --ray: 255,236,186; --dust: 255,244,214; --safe-glow: rgba(235,188,94,.38);
+    --btn: #EBBC5E; --btn-ink: rgba(17,17,17,.88); --accent-text: #EBBC5E; --negative: #CC5B5A;
+    --ray: 255,236,186; --dust: 255,244,214;
+    /* market tokens: same gradients in both brands, only these values change */
+    --claim-glow-0: rgba(235,188,94,.26); --claim-glow-100: rgba(235,188,94,0); --claim-safe-glow: rgba(235,188,94,.57);
+    --story-glow-0: rgba(235,188,94,.28); --story-glow-100: rgba(235,188,94,0); --story-orb: rgba(235,188,94,.34);
+    --ic-open: 112.5%; --ic-closed: 112.5%; --ic-closed-s64: 140.6%;
   }
   body[data-brand="pari"] {
-    --btn: #00C7B1; --btn-ink: #171717; --accent-text: #1FAD9E; --warn: #1FAD9E;
-    --ray: 255,255,255; --dust: 236,250,250; --safe-glow: rgba(255,255,255,.2);
+    --btn: #00C7B1; --btn-ink: #171717; --accent-text: #1FAD9E;
+    --ray: 255,255,255; --dust: 236,250,250;
+    --claim-glow-0: rgba(255,255,255,.24); --claim-glow-100: rgba(255,255,255,0); --claim-safe-glow: rgba(255,255,255,.2);
+    --story-glow-0: rgba(255,255,255,.14); --story-glow-100: rgba(255,255,255,0); --story-orb: rgba(255,255,255,.16);
+    --ic-open: 100%; --ic-closed: 90%; --ic-closed-s64: 111%;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -83,6 +90,7 @@
   .calc { color: var(--w64); }
   .cg { font-size: 12px; line-height: 16px; color: var(--accent-text); }
   .cr { font-size: 12px; line-height: 16px; color: var(--red); }
+  .cx { font-size: 12px; line-height: 16px; color: var(--w48); }
   .chev { width: 16px; height: 16px; justify-self: end; }
 
   /* mobile sheet */
@@ -100,22 +108,19 @@
 
   /* claim card */
   .card { position: relative; border-radius: 12px; padding: 14px; box-shadow: inset 0 0 0 2px var(--w8);
-    background: radial-gradient(var(--gs) at var(--gx) var(--gy), rgba(var(--glow),.26), rgba(var(--glow),.06) 60%, rgba(var(--glow),0) 100%), var(--w4); }
+    background: radial-gradient(var(--gs) at var(--gx) var(--gy), var(--claim-glow-0) 0, var(--claim-glow-100) 80%), var(--w4); }
   .card.d { --gs: 35% 89%; --gx: 10%; --gy: 50%; display: flex; align-items: center; gap: 12px; }
   .card.m { --gs: 40% 83%; --gx: 16%; --gy: 42%; display: grid; gap: 12px; }
-  body[data-brand="pari"] .card { background: linear-gradient(180deg, rgba(104,104,104,.7), rgba(24,25,27,0)),
-      radial-gradient(var(--pg) at var(--pa), rgba(255,255,255,.3), rgba(255,255,255,.1) 50%, rgba(255,255,255,0) 90%), var(--w4); }
-  body[data-brand="pari"] .card.d { --pg: 203px 167px; --pa: 105% 108%; }
-  body[data-brand="pari"] .card.m { --pg: 224px 223px; --pa: 100% 94%; }
   .card .row { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
-  .ic { position: relative; width: 80px; height: 80px; flex: none; }
+  .card .row > div:last-child { flex: 1; min-width: 0; }
+  .ic { position: relative; width: 80px; height: 80px; flex: none; --isz: var(--ic-open); }
+  .ic.closed { --isz: var(--ic-closed); }
+  .ic.closed.s64 { --isz: var(--ic-closed-s64); }
   .ic.s64 { width: 64px; height: 64px; }
-  .ic::before { content: ""; position: absolute; left: 47%; top: 52%; width: 90%; height: 90%; translate: -50% -50%; border-radius: 50%; background: var(--safe-glow); filter: blur(16px); }
-  .ic img { position: absolute; left: 50%; top: 50%; width: 125%; height: 125%; translate: -50% -50%; object-fit: contain; }
+  .ic::before { content: ""; position: absolute; left: 47%; top: 52%; width: 90%; height: 90%; translate: -50% -50%; border-radius: 50%; background: var(--claim-safe-glow); filter: blur(16px); }
+  .ic img { position: absolute; left: 50%; top: 50%; width: var(--isz); height: var(--isz); translate: -50% -50%; object-fit: contain; }
   .lbl { display: flex; align-items: center; gap: 6px; font-size: 14px; line-height: 18px; font-weight: 500; color: var(--w64); }
-  .lbl svg { width: 16px; height: 16px; flex: none; }
-  .lbl svg path { fill: var(--warn); }
-  .vals { display: flex; align-items: center; gap: var(--gap, 8px); margin-top: 4px; color: #fff; }
+  .vals { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--gap, 8px); margin-top: 4px; color: #fff; }
   .vals .v { display: inline-flex; align-items: center; gap: calc(var(--nf) * .25); font-weight: 700; font-size: var(--nf); line-height: calc(var(--nf) + 8px); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .vals .v svg { width: var(--ic); height: var(--ic); flex: none; }
   .vals .dv { width: 1px; align-self: center; background: rgba(255,255,255,.29); border-radius: 1px; }
@@ -125,9 +130,27 @@
     font: inherit; font-size: 14px; line-height: 18px; font-weight: 500; cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; }
   .btn:active { transform: translateY(1px); }
   .card.m .btn { width: 100%; }
+  /* loader: the label stays in place (transparent), so the button keeps the width of «Забрать» */
   .btn.busy { color: transparent; pointer-events: none; }
-  .btn.busy::after { content: ""; position: absolute; left: calc(50% - 8px); top: calc(50% - 8px); width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid var(--btn-ink); border-right-color: transparent; animation: spin .7s linear infinite; }
+  .btn .dots { display: none; position: absolute; left: 50%; top: 50%; translate: -50% -50%; gap: 6px; }
+  .btn.busy .dots { display: flex; }
+  .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--btn-ink); opacity: .3; animation: dot .9s ease-in-out infinite; }
+  .dots i:nth-child(2) { animation-delay: .15s; } .dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 0%, 100% { opacity: .3; } 40% { opacity: 1; } }
+
+  /* error alert: Alert M, negative, solid */
+  .toast { position: absolute; z-index: 40; display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-radius: 10px; background: var(--negative); color: #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,.4); animation: toastIn .35s cubic-bezier(.2,.8,.2,1) both; }
+  .toast.d { top: 24px; right: 24px; width: 360px; }
+  .toast.m { top: 52px; left: 16px; right: 16px; }
+  .toast .ti { width: 24px; height: 24px; flex: none; display: grid; place-items: center; }
+  .toast .ti svg { width: 20px; height: 20px; }
+  .toast .tx { flex: 1; min-width: 0; display: grid; gap: 4px; }
+  .toast b { font-size: 16px; line-height: 22px; font-weight: 600; }
+  .toast span { font-size: 14px; line-height: 18px; }
+  .toast .tc { width: 22px; height: 22px; flex: none; display: grid; place-items: center; }
+  .toast .tc svg { width: 18px; height: 18px; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-12px); } }
 
   /* success moment */
   .moment { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; overflow: hidden; border-radius: inherit;
@@ -152,6 +175,8 @@
   .v-door { transform-origin: 67% 53%; }
   .sp { width: var(--z); height: var(--z); margin-left: calc(var(--x) * var(--k)); margin-top: calc(var(--y) * var(--k)); filter: drop-shadow(0 0 4px rgba(255,240,190,.9)); }
   .sp svg { display: block; width: 100%; height: 100%; }
+  .mo-sum { width: 100%; }
+  .cnt { display: inline-block; text-align: right; }
   .mo-sum .vals { margin: 0; justify-content: center; }
   .mo-btn { margin-top: 32px; width: 200px; }
 
@@ -180,8 +205,7 @@
 
   /* stories */
   .story { position: absolute; inset: 0; background: linear-gradient(180deg, #121417 0%, #292D32 100%); overflow: hidden; }
-  .story::before { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 45% at 50% 50%, rgba(235,188,94,.28), rgba(235,188,94,0)); }
-  body[data-brand="pari"] .story::before { background: radial-gradient(70% 45% at 50% 50%, rgba(204,242,237,.14), rgba(204,242,237,0)); }
+  .story::before { content: ""; position: absolute; inset: 0; background: radial-gradient(70% 45% at 50% 50%, var(--story-glow-0), var(--story-glow-100)); }
   .st-c { position: absolute; left: 0; right: 0; top: 44px; bottom: 0; }
   .bars { position: absolute; left: 12px; top: 19px; display: flex; gap: 12px; }
   .bars i { width: 92px; height: 2px; border-radius: 1px; background: rgba(255,255,255,.24); }
@@ -193,8 +217,7 @@
   .st-text { position: absolute; left: 24px; right: 24px; top: 72px; display: grid; gap: 12px; text-align: center; z-index: 3; }
   .st-t { font-size: 24px; line-height: 32px; font-weight: 700; color: #fff; text-transform: uppercase; }
   .st-p { font-size: 16px; line-height: 22px; color: var(--w88); }
-  .st-glow { position: absolute; border-radius: 50%; background: rgba(var(--glow),.34); filter: blur(90px); }
-  body[data-brand="pari"] .st-glow { background: rgba(255,255,255,.16); }
+  .st-glow { position: absolute; border-radius: 50%; background: var(--story-orb); filter: blur(90px); }
   .st-art { position: absolute; object-fit: contain; }
   .st-btn { position: absolute; left: 60px; width: 240px; top: 688px; height: 44px; z-index: 3; font-size: 16px; }
   .st-phone { position: absolute; left: 55px; top: 244px; width: 250px; height: 500px; border-radius: 34px; background: #0d0f12; overflow: hidden; z-index: 2; box-shadow: inset 0 0 0 5px #22252a; }
@@ -250,7 +273,8 @@ const ICON = {
   money: '<svg viewBox="0 0 26 26" aria-label="деньгами" role="img"><path fill="#fff" d="M13.2678 2.16932C13.7786 2.13296 14.2218 2.52668 14.2582 3.04897L14.3789 4.80611L15.5377 21.6549L15.5366 21.6538L15.5663 22.0807C15.6023 22.6035 15.2174 23.0577 14.7062 23.0947L4.46786 23.8313C3.95672 23.8679 3.51348 23.4734 3.47749 22.9506L2.1683 3.91888C2.13263 3.39614 2.5183 2.94274 3.02945 2.90598L13.2678 2.16932ZM23.2488 5.62943C23.6911 5.77524 23.9342 6.26024 23.7922 6.71275L19.0162 21.8965C18.8736 22.3491 18.3995 22.5977 17.957 22.4522L17.0842 22.1641C17.0844 22.1017 17.0853 22.0388 17.081 21.9756L15.7877 3.17464L23.2488 5.62943ZM11.7489 3.94163L4.76868 4.44428C4.29098 4.47888 3.9303 4.9036 3.96367 5.39219L5.05149 21.2075C5.0853 21.6959 5.49974 22.0646 5.97724 22.0308L12.9575 21.5282C13.435 21.4935 13.7956 21.0697 13.7625 20.5814L12.6747 4.76603C12.6409 4.27763 12.2264 3.90787 11.7489 3.94163ZM12.2012 20.0256L6.52062 20.434L5.52495 5.94684L11.2055 5.53843L12.2012 20.0256Z"/></svg>',
   freebet: '<svg viewBox="0 0 22 22" aria-label="фрибетами" role="img"><path fill="#fff" fill-opacity=".88" d="M10.2718 11.3007V20.1663H4.69078C3.90482 20.1663 3.26733 19.5636 3.26712 18.8209V11.3007H10.2718Z"/><path fill="#fff" fill-opacity=".88" d="M18.7086 18.8209C18.7084 19.5636 18.0709 20.1663 17.2849 20.1663H11.6954V11.3007H18.7086V18.8209Z"/><path fill="#fff" fill-opacity=".88" fill-rule="evenodd" d="M14.9529 1.83357C15.1975 1.82532 15.7132 1.90769 16.0801 2.06452C16.4381 2.20484 16.7528 2.41901 17.0235 2.68308C17.5038 3.14526 17.8089 3.73164 17.8788 4.31763C17.9487 4.9035 17.8095 5.49781 17.4952 6.00947H18.7437C19.5297 6.00947 20.1673 6.6129 20.1673 7.35578V9.94726H11.7125V6.10078H10.2888V9.94726H1.83398V7.35578C1.83398 6.61298 2.47168 6.00961 3.25765 6.00947H4.4985C4.25401 5.60506 4.10487 5.14302 4.08741 4.68912C4.06996 4.19392 4.1922 3.70683 4.44545 3.2694C4.69875 2.83192 5.07509 2.47706 5.52054 2.22118C5.96589 1.96544 6.48094 1.83359 7.00483 1.83357C7.72978 1.83357 8.53351 2.08945 9.24973 2.54343C9.91343 2.98089 10.4372 3.57511 10.7691 4.26839C10.8477 4.40871 10.9175 4.53258 10.9699 4.63988C11.0135 4.54923 11.0663 4.45841 11.1186 4.36776L11.1801 4.26839C11.5033 3.57511 12.0358 2.9807 12.6995 2.55149C13.3719 2.12232 14.1495 1.87489 14.9529 1.83357ZM14.9529 3.17899C14.4115 3.22031 13.8789 3.40179 13.4336 3.70713C12.9881 4.01254 12.6382 4.43326 12.4286 4.91201V4.92007C12.2277 5.275 12.0625 5.63872 11.9228 6.01842H15.0059C15.3813 6.00185 15.7479 5.86139 16.0185 5.60576C16.298 5.33343 16.4551 4.9783 16.4552 4.59871C16.4552 4.21901 16.298 3.86405 16.0185 3.59166C15.7303 3.32752 15.3459 3.17899 14.9529 3.17899ZM7.07492 3.17004C6.67314 3.17004 6.2888 3.31946 6.00931 3.5836C5.73004 3.85587 5.57276 4.21031 5.57264 4.58975C5.57264 4.96937 5.72992 5.32443 6.00931 5.5968V5.58875C6.24504 5.81152 6.54182 5.95183 6.85611 6.00141H10.106C9.975 5.63001 9.80864 5.25865 9.60777 4.91201C9.38941 4.42504 9.03968 4.00447 8.59425 3.69908C8.06151 3.33593 7.59019 3.17006 7.07492 3.17004Z"/></svg>',
   bonus: '<svg viewBox="0 0 22 22" aria-label="бонусами" role="img"><path fill="#fff" fill-opacity=".88" fill-rule="evenodd" d="M11.0007 1.83301C16.0633 1.83301 20.1673 5.93706 20.1673 10.9997C20.1673 16.0623 16.0633 20.1663 11.0007 20.1663C5.93804 20.1663 1.83398 16.0623 1.83398 10.9997C1.83398 5.93706 5.93804 1.83301 11.0007 1.83301ZM11.0007 6.41634C10.785 6.41634 10.5794 6.51463 10.4519 6.7207L9.10824 8.89958C9.05921 8.98778 8.9807 9.05644 8.90234 9.10547L6.72616 10.45C6.31439 10.7052 6.31439 11.2941 6.72616 11.5493L8.90234 12.8939C8.99048 12.9429 9.05923 13.0213 9.10824 13.0998L10.4519 15.2786C10.5794 15.4847 10.785 15.583 11.0007 15.583C11.2163 15.583 11.4219 15.4847 11.5494 15.2786L12.8931 13.0998C12.9421 13.0116 13.0206 12.9429 13.099 12.8939L15.2751 11.5493C15.6869 11.2941 15.6869 10.7052 15.2751 10.45L13.099 9.10547C13.0108 9.05645 12.9421 8.97801 12.8931 8.89958L11.5494 6.7207C11.4219 6.51463 11.2163 6.41634 11.0007 6.41634Z"/></svg>',
-  warn: '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8.00065 1.33398C4.32065 1.33398 1.33398 4.32065 1.33398 8.00065C1.33398 11.6807 4.32065 14.6673 8.00065 14.6673C11.6807 14.6673 14.6673 11.6807 14.6673 8.00065C14.6673 4.32065 11.6807 1.33398 8.00065 1.33398ZM8.00065 10.6473C7.72065 10.6473 7.50065 10.4207 7.50065 10.1473C7.50065 9.87398 7.72065 9.64732 8.00065 9.64732C8.28065 9.64732 8.50065 9.86732 8.50065 10.1473C8.50065 10.4273 8.27398 10.6473 8.00065 10.6473ZM8.50065 8.18732C8.50065 8.46065 8.27398 8.68732 8.00065 8.68732C7.72732 8.68732 7.50065 8.46065 7.50065 8.18732V5.35398C7.50065 5.08065 7.72732 4.85398 8.00065 4.85398C8.27398 4.85398 8.50065 5.08065 8.50065 5.35398V8.18732Z"/></svg>',
+  alertWarn: '<svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#fff" d="M10 12.4697C10.4141 12.4697 10.7499 12.8056 10.75 13.2197C10.75 13.6339 10.4142 13.9697 10 13.9697C9.58579 13.9697 9.25 13.6339 9.25 13.2197C9.25013 12.8056 9.58587 12.4697 10 12.4697Z"/><path fill="#fff" d="M10 5.28027C10.41 5.28027 10.75 5.62027 10.75 6.03027V10.2803C10.7499 10.6902 10.4099 11.0303 10 11.0303C9.59008 11.0303 9.25013 10.6902 9.25 10.2803V6.03027C9.25 5.62027 9.59 5.28027 10 5.28027Z"/><path fill="#fff" fill-rule="evenodd" d="M10 0C15.52 0 20 4.48 20 10C20 15.52 15.52 20 10 20C4.48 20 0 15.52 0 10C0 4.48 4.48 0 10 0ZM10 1.5C5.31 1.5 1.5 5.31 1.5 10C1.5 14.69 5.31 18.5 10 18.5C14.69 18.5 18.5 14.69 18.5 10C18.5 5.31 14.69 1.5 10 1.5Z"/></svg>',
+  alertClose: '<svg viewBox="0 0 18.3333 18.3333" aria-hidden="true"><path fill="#fff" d="M15.7647 2.56153C16.1249 2.92186 16.1249 3.49894 15.7647 3.85927L10.4631 9.16356L15.7717 14.4749C16.1316 14.8352 16.1317 15.411 15.7717 15.7712C15.4117 16.1314 14.8355 16.1319 14.4754 15.7719L9.16667 10.4606L3.85799 15.7719C3.49782 16.132 2.92165 16.1314 2.5616 15.7712C2.20161 15.411 2.20177 14.8352 2.5616 14.4749L7.87028 9.16356L2.56863 3.85927C2.20848 3.49894 2.20848 2.92186 2.56863 2.56153C2.92879 2.20128 3.5049 2.20193 3.86503 2.56223L9.16667 7.86652L14.4683 2.56223C14.8284 2.20193 15.4046 2.20127 15.7647 2.56153Z"/></svg>',
   close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#A3A3A3" fill-opacity=".5" d="M19.1979 4.79439C19.5908 5.18748 19.5908 5.81703 19.1979 6.21012L13.4143 11.9966L19.2055 17.7908C19.5981 18.1839 19.5982 18.812 19.2055 19.205C18.8128 19.5979 18.1842 19.5985 17.7913 19.2057L12 13.4116L6.20872 19.2057C5.81581 19.5985 5.18725 19.5979 4.79447 19.205C4.40176 18.812 4.40193 18.1839 4.79447 17.7908L10.5858 11.9966L4.80214 6.21012C4.40925 5.81703 4.40925 5.18748 4.80214 4.79439C5.19504 4.40139 5.82353 4.4021 6.21639 4.79516L12 10.5817L17.7836 4.79516C18.1765 4.4021 18.805 4.40138 19.1979 4.79439Z"/></svg>',
   chev: '<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path fill="#A3A3A3" d="M12.0788 6.00135C11.9272 6.00135 11.7755 6.06159 11.6568 6.17539L7.99736 9.89048L4.34446 6.17539C4.11368 5.9411 3.73785 5.9411 3.50707 6.17539C3.27629 6.40967 3.27629 6.79123 3.50707 7.02551L7.58196 11.1623C7.80614 11.3899 8.20175 11.3899 8.41935 11.1623L12.4942 7.02551C12.725 6.79123 12.725 6.40967 12.4942 6.17539C12.3755 6.0549 12.2239 6.00135 12.0722 6.00135H12.0788Z"/></svg>',
   collapse: '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path fill="#A3A3A3" d="M15.1569 7.22473C14.9651 7.22473 14.7733 7.30317 14.6231 7.45134L9.99432 12.2887L5.37383 7.45134C5.08192 7.14628 4.60654 7.14628 4.31463 7.45134C4.02273 7.7564 4.02273 8.25321 4.31463 8.55827L9.46888 13.9447C9.75245 14.2411 10.2529 14.2411 10.5281 13.9447L15.6823 8.55827C15.9742 8.25321 15.9742 7.7564 15.6823 7.45134C15.5322 7.29446 15.3404 7.22473 15.1486 7.22473H15.1569Z"/></svg>',
@@ -263,14 +287,23 @@ const ROWS = {
   one: [['16.10.26, 12:35', 'Gold Pro', null], ['13.10.26, 15:10', 'Gold Pro', 6300, 'g'], ['06.10.26, 15:10', 'Gold Pro', 3200, 'r'],
         ['29.09.26, 12:50', 'Silver Elite', 4100], ['22.09.26, 13:05', 'Silver Elite', 3900], ['15.09.26, 12:40', 'Silver Pro', 1500], ['08.09.26, 12:40', 'Silver Pro', 1200]],
   two: [['16.10.26, 12:35', 'Gold Pro', null], ['13.10.26, 15:10', 'Silver Elite', 5500, 'g'], ['06.10.26, 15:10', 'Silver Elite', 4000, 'r'],
+        ['29.09.26, 12:50', 'Silver Elite', 4100], ['22.09.26, 13:05', 'Silver Elite', 3900], ['15.09.26, 12:40', 'Silver Pro', 1500], ['08.09.26, 12:40', 'Silver Pro', 1200]],
+  big: [['16.10.26, 12:35', 'Gold Pro', null], ['13.10.26, 15:10', 'Gold Pro', 140000, 'g'], ['06.10.26, 15:10', 'Gold Pro', 70500, 'r'],
+        ['29.09.26, 12:50', 'Silver Elite', 4100], ['22.09.26, 13:05', 'Silver Elite', 3900], ['15.09.26, 12:40', 'Silver Pro', 1500], ['08.09.26, 12:40', 'Silver Pro', 1200]],
+  burned: [['27.10.26, 12:35', 'Gold Pro', null], ['13.10.26, 15:10', 'Gold Pro', 6300, 'x'], ['06.10.26, 15:10', 'Gold Pro', 3200, 'x'],
         ['29.09.26, 12:50', 'Silver Elite', 4100], ['22.09.26, 13:05', 'Silver Elite', 3900], ['15.09.26, 12:40', 'Silver Pro', 1500], ['08.09.26, 12:40', 'Silver Pro', 1200]]
 };
-const VALS = { one: [[9500, 'money']], two: [[7000, 'freebet'], [2500, 'bonus']] };
-const SIZES = { // [number px, icon px, gap, divider height]
-  card: { d: { one: [30, 26, 8, 0], two: [24, 22, 16, 20] }, m: { one: [30, 26, 8, 0], two: [20, 20, 10, 17] } },
-  moment: { d: { one: [36, 28, 10, 0], two: [30, 26, 20, 26] }, m: { one: [36, 28, 10, 0], two: [24, 20, 14, 22] } }
+ROWS.three = ROWS.two;
+const VALS = { one: [[9500, 'money']], two: [[7000, 'freebet'], [2500, 'bonus']],
+  three: [[1500, 'money'], [5500, 'freebet'], [2500, 'bonus']], big: [[12500, 'money'], [150000, 'freebet'], [48000, 'bonus']] };
+// [number px, icon px, gap, divider height]. Sums that don't fit go one font step down first, then wrap.
+const SIZES = {
+  card: { d: { one: [30, 26, 8, 0], two: [24, 22, 16, 20], three: [20, 20, 10, 17], big: [16, 16, 8, 14] },
+          m: { one: [30, 26, 8, 0], two: [20, 20, 10, 17], three: [16, 16, 8, 14], big: [16, 16, 8, 14] } },
+  moment: { d: { one: [36, 28, 10, 0], two: [30, 26, 20, 26], three: [30, 26, 20, 26], big: [30, 26, 20, 26] },
+            m: { one: [36, 28, 10, 0], two: [24, 20, 14, 22], three: [20, 20, 12, 17], big: [20, 20, 12, 17] } }
 };
-const CAP = { g: 'Можно забрать', r: 'Скоро сгорит' };
+const CAP = { g: 'Можно забрать', r: 'Скоро сгорит', x: 'Сгорел' };
 const SPARKS = [[-150, -95, 14], [165, -70, 10], [-135, 85, 9], [150, 95, 16], [-30, -140, 8], [195, 15, 7]];
 
 /* ---------- builders ---------- */
@@ -283,16 +316,16 @@ function cardHTML(res, s) {
   const k = s.kind || 'one';
   if (s.card === 'empty') {
     return `<div class="card ${res}"><div class="row"><div class="ic closed${res === 'm' ? ' s64' : ''}"><img src="${img('card-closed')}" alt=""></div>
-      <div><div class="e-ttl">Нет доступного кешбэка</div><div class="e-txt">Как только он будет рассчитан –${NB}вы${NB}сможете его${NB}забрать</div></div></div></div>`;
+      <div><div class="e-ttl">Нет доступного кешбэка</div><div class="e-txt">Как только он${NB}будет рассчитан${NB}– вы${NB}сможете его${NB}забрать</div></div></div></div>`;
   }
-  const err = s.card === 'error';
-  const label = err ? `<div class="lbl">${ICON.warn}Не${NB}удалось забрать</div>` : `<div class="lbl">Можно забрать</div>`;
-  const btn = `<button class="btn${s.card === 'loading' ? ' busy' : ''}" type="button" data-act="claim">${err ? 'Повторить' : 'Забрать'}</button>`;
+  const btn = `<button class="btn${s.card === 'loading' ? ' busy' : ''}" type="button" data-act="claim">Забрать<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></button>`;
   return `<div class="card ${res}"><div class="row"><div class="ic"><img src="${img('card-open')}" alt=""></div>
-    <div>${label}${valsHTML(k, SIZES.card[res][k])}</div></div>${btn}</div>`;
+    <div><div class="lbl">Доступный кешбэк</div>${valsHTML(k, SIZES.card[res][k])}</div></div>${btn}</div>`;
 }
+// burned weeks keep their label and lose the plus: the money never reached the account
 const sumCell = (amt, c, claimed, mob) => amt == null ? `<span class="calc"${mob ? ' style="font-size:16px"' : ''}>Идёт расчёт</span>` :
-  `<span class="amt">+${NB}${fmt(amt)}</span>${c && !claimed ? `<span class="c${c}">${CAP[c]}</span>` : ''}`;
+  `<span class="amt">${c === 'x' ? '' : '+' + NB}${fmt(amt)}</span>${c && (!claimed || c === 'x') ? `<span class="c${c}">${CAP[c]}</span>` : ''}`;
+const toastHTML = res => `<div class="toast ${res}" role="alert"><span class="ti">${ICON.alertWarn}</span><span class="tx"><b>Не${NB}удалось забрать кешбэк</b><span>Попробуйте ещё раз</span></span><span class="tc">${ICON.alertClose}</span></div>`;
 function rowsD(kind, claimed) {
   return `<div class="thead"><span>Дата</span><span>Статус</span><span style="text-align:right">Сумма</span><span></span></div>` +
     ROWS[kind].slice(0, 6).map(([d, st, amt, c]) => `<div class="trow"><span>${d}</span><span class="st">${st}</span><span class="sum">${sumCell(amt, c, claimed)}</span>${ICON.chev}</div>`).join('');
@@ -329,9 +362,9 @@ function screenM(s, inStory = false) {
 }
 const urlText = () => state.brand === 'pari' ? 'pari.ru/vip-cashback' : 'fon.bet/vip-cashback';
 const mockD = s => `<div class="mk mk-d"><div class="mk-inner"><div class="browser"><div class="chrome"><i></i><i></i><i></i><span class="url">${urlText()}</span></div>
-  <div class="viewport" style="background-image:url(${img('page')})">${screenD(s)}</div></div></div></div>`;
+  <div class="viewport" style="background-image:url(${img('page')})">${screenD(s)}${s.toast ? toastHTML('d') : ''}</div></div></div></div>`;
 const phone = inner => `<div class="phone"><div class="screen"><div class="island"></div><div class="status"><span>9:41</span><span class="bat"></span></div>${inner}</div></div>`;
-const mockM = s => `<div class="mk mk-m"><div class="mk-inner">${phone(screenM(s))}</div></div>`;
+const mockM = s => `<div class="mk mk-m"><div class="mk-inner">${phone(screenM(s) + (s.toast ? toastHTML('m') : ''))}</div></div>`;
 function storyHTML(i) {
   const bars = [0, 1, 2].map(j => `<i class="${j < i ? 'done' : j === i ? 'cur' : ''}"></i>`).join('');
   const T = [['Кешбэк теперь нужно забирать', `Раньше он${NB}приходил сам по${NB}понедельникам. Теперь после расчёта его нужно забрать кнопкой.`],
@@ -351,13 +384,20 @@ const CASES = [
     rows: [{ s: { card: 'claim', kind: 'one', moment: 'hidden' }, flow: true }] },
   { id: 2, t: 'Два типа кешбэка', n: `Показать суммы фрибетов и${NB}бонусов отдельно через разделитель, каждую со${NB}своей иконкой. Типы не${NB}складывать.`,
     rows: [{ s: { card: 'claim', kind: 'two', moment: 'hidden' }, flow: true }] },
-  { id: 3, t: 'Кешбэк начислен', n: `Поверх окна показать экран успеха: затемнение с${NB}блюром, сейф открывается, монеты вылетают, сумма досчитывается. Если забрали фрибеты и${NB}бонусы, обе суммы в${NB}одну строку через разделитель.`,
-    rows: [{ sub: 'Один тип', s: { card: 'claim', kind: 'one', moment: 'show' }, replay: true }, { sub: 'Два типа', s: { card: 'claim', kind: 'two', moment: 'show' }, replay: true }] },
-  { id: 4, t: 'Кешбэк забран или забирать нечего', n: `После «Отлично» показать карточку «Нет доступного кешбэка». Так же выглядит окно, когда забирать нечего. Подписи у${NB}забранных недель убрать.`,
+  { id: 3, t: 'Три типа кешбэка', n: `Деньги, фрибеты и${NB}бонусы в${NB}одну строку через разделитель. Не${NB}помещаются — шрифт на${NB}шаг меньше: на${NB}десктопе 24${NB}→${NB}20, на${NB}мобилке 20${NB}→${NB}16. Не${NB}помещаются и${NB}так — перенос.`,
+    rows: [{ s: { card: 'claim', kind: 'three', moment: 'hidden' }, flow: true }] },
+  { id: 4, t: 'Переполнение', n: `Сначала шрифт на${NB}шаг меньше, потом перенос. Сумма переносится на${NB}следующую строку целиком, разделитель в${NB}начале и${NB}в${NB}конце строки не${NB}ставим.`,
+    rows: [{ s: { card: 'claim', kind: 'big', moment: 'hidden' }, flow: true }] },
+  { id: 5, t: 'Кешбэк начислен', n: `Поверх окна показать экран успеха: затемнение с${NB}блюром, сейф открывается, монеты вылетают, сумма досчитывается. Если забрали несколько типов, суммы в${NB}одну строку через разделитель.`,
+    rows: [{ sub: 'Один тип', s: { card: 'claim', kind: 'one', moment: 'show' }, replay: true }, { sub: 'Два типа', s: { card: 'claim', kind: 'two', moment: 'show' }, replay: true },
+           { sub: 'Три типа', s: { card: 'claim', kind: 'three', moment: 'show' }, replay: true }], auto: true },
+  { id: 6, t: 'Кешбэк забран или забирать нечего', n: `После «Отлично» показать карточку «Нет доступного кешбэка». Так же выглядит окно, когда забирать нечего. Подписи у${NB}забранных недель убрать.`,
     rows: [{ s: { card: 'empty', kind: 'one', claimed: true } }] },
-  { id: 5, t: 'Ошибка', n: `Показать ошибку в${NB}карточке: над суммой «Не${NB}удалось забрать» с${NB}иконкой, кнопка «Повторить».`,
-    rows: [{ s: { card: 'error', kind: 'one' } }] },
-  { id: 6, t: 'Онбординг', n: `Показать сторис один раз, при первом входе после релиза.`, stories: true }
+  { id: 7, t: 'Не успел забрать', n: `Если забирать больше нечего, показать карточку «Нет доступного кешбэка». В${NB}истории у${NB}сгоревших недель подпись «Сгорел», сумма без плюса.`,
+    rows: [{ s: { card: 'empty', kind: 'burned' } }] },
+  { id: 8, t: 'Ошибка', n: `Карточка не${NB}меняется, кнопка остаётся «Забрать». Показать красный алерт на${NB}5${NB}секунд: на${NB}десктопе вверху справа поверх затемнения, на${NB}мобилке вверху экрана.`,
+    rows: [{ s: { card: 'claim', kind: 'one', toast: true }, flow: 'error' }] },
+  { id: 9, t: 'Онбординг', n: `Показать сторис один раз, при первом входе после релиза.`, stories: true }
 ];
 
 /* ---------- render ---------- */
@@ -368,11 +408,20 @@ function render() {
     const head = `<h2><span>${c.id}</span>${c.t}</h2>${c.n ? `<p class="note">${c.n}</p>` : '<div style="height:16px"></div>'}`;
     if (c.stories) return `<section class="case" id="case-${c.id}">${head}<div class="stories">${[0, 1, 2].map(i => `<div class="mk mk-s"><div class="mk-inner">${phone(storyHTML(i))}</div></div>`).join('')}</div></section>`;
     return `<section class="case" id="case-${c.id}">${head}` + c.rows.map(r => {
-      const sub = r.sub || r.replay || r.flow ? `<div class="sub">${r.sub || ''}${r.replay ? '<button class="lnk" type="button" data-act="replay">Проиграть ещё раз</button>' : ''}${r.flow ? '<button class="lnk" type="button" data-act="reset">Сначала</button>' : ''}</div>` : '';
-      return `${sub}<div class="pair" data-show="${state.res}" data-flow="${r.flow ? 1 : 0}" data-s='${JSON.stringify(r.s)}'>${mockD(r.s)}${mockM(r.s)}</div>`;
+      const sub = r.sub || r.replay || r.flow === true ? `<div class="sub">${r.sub || ''}${r.replay ? '<button class="lnk" type="button" data-act="replay">Проиграть ещё раз</button>' : ''}${r.flow === true ? '<button class="lnk" type="button" data-act="reset">Сначала</button>' : ''}</div>` : '';
+      return `${sub}<div class="pair" data-show="${state.res}" data-flow="${r.flow === 'error' ? 'error' : r.flow ? 1 : 0}" data-auto="${c.auto ? 1 : 0}" data-s='${JSON.stringify(r.s)}'>${mockD(r.s)}${mockM(r.s)}</div>`;
     }).join('') + '</section>';
   }).join('');
-  layout(); setupMoments();
+  layout(); setupMoments(); fixDividers();
+}
+
+/* a divider that ends up at the start or end of a wrapped line is hidden */
+function fixDividers(root = document) {
+  for (const v of root.querySelectorAll('.vals')) {
+    const dv = [...v.querySelectorAll('.dv')]; dv.forEach(d => { d.style.visibility = ''; });
+    const cy = el => el.offsetTop + el.offsetHeight / 2;
+    dv.forEach(d => { const a = d.previousElementSibling, z = d.nextElementSibling; if (a && z && Math.abs(cy(a) - cy(z)) > 4) d.style.visibility = 'hidden'; });
+  }
 }
 
 /* ---------- scaling ---------- */
@@ -452,6 +501,9 @@ function play(m) {
   m.hidden = false; m.classList.remove('on', 'enter', 'static'); void m.offsetWidth;
   m.classList.add('on', 'enter'); if (reduce) m.classList.add('static');
   m._t0 = performance.now() / 1000 - (reduce ? 6 : 0);
+  // reserve the final width of each sum so lines don't re-wrap while counting up
+  m.querySelectorAll('.cnt').forEach(el => { el.style.minWidth = ''; el.textContent = fmt(+el.dataset.v); el.style.minWidth = el.offsetWidth + 'px'; });
+  fixDividers(m);
   m.querySelectorAll('.cnt').forEach(el => { el.textContent = reduce ? fmt(+el.dataset.v) : '0'; });
 }
 function showStatic(m) {
@@ -462,7 +514,7 @@ const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting
 function setupMoments() {
   moments = [...document.querySelectorAll('.moment')];
   moments.forEach(m => { m._t0 = null; if (!m.hidden) showStatic(m); });
-  io.disconnect(); document.querySelectorAll('#case-3 .pair').forEach(p => io.observe(p));
+  io.disconnect(); document.querySelectorAll('.pair[data-auto="1"]').forEach(p => io.observe(p));
 }
 function tick(now) {
   const t = now / 1000, vh = innerHeight, ray = cssVar('--ray'), dust = cssVar('--dust');
@@ -483,6 +535,7 @@ function resetMock(mk, s) {
   if (m) { m.classList.remove('on', 'enter', 'static'); m.hidden = true; m._t0 = null; }
   mk.querySelector('.slot').innerHTML = cardHTML(res, s);
   mk.querySelector('.rows').innerHTML = res === 'd' ? rowsD(s.kind, false) : rowsM(s.kind, false);
+  fixDividers(mk);
 }
 document.addEventListener('click', e => {
   const btn = e.target.closest('[data-act]'); if (!btn) return;
@@ -490,9 +543,15 @@ document.addEventListener('click', e => {
   if (act === 'replay') { btn.closest('.sub').nextElementSibling.querySelectorAll('.moment').forEach(play); return; }
   if (act === 'reset') { const pair = btn.closest('.sub').nextElementSibling, s = JSON.parse(pair.dataset.s); pair.querySelectorAll('.mk').forEach(mk => resetMock(mk, s)); return; }
   const mk = btn.closest('.mk'); if (!mk) return;
-  const pair = mk.closest('.pair'); if (!pair || pair.dataset.flow !== '1') return;
+  const pair = mk.closest('.pair'); if (!pair) return;
+  if (pair.dataset.flow === 'error' && act === 'claim') { // loader → the request fails → the card stays, the alert shows again
+    const t = mk.querySelector('.toast'); if (t) t.remove(); btn.classList.add('busy');
+    setTimeout(() => { btn.classList.remove('busy'); (mk.querySelector('.viewport') || mk.querySelector('.screen')).insertAdjacentHTML('beforeend', toastHTML(mk.classList.contains('mk-d') ? 'd' : 'm')); }, 700);
+    return;
+  }
+  if (pair.dataset.flow !== '1') return;
   const s = JSON.parse(pair.dataset.s), res = mk.classList.contains('mk-d') ? 'd' : 'm';
-  if (act === 'claim') { btn.classList.add('busy'); setTimeout(() => play(mk.querySelector('.moment')), 600); }
+  if (act === 'claim') { btn.classList.add('busy'); setTimeout(() => { const m = mk.querySelector('.moment'); play(m); fixDividers(m); }, 600); }
   if (act === 'ok') {
     const m = mk.querySelector('.moment'); m.classList.remove('on', 'enter', 'static'); m.hidden = true; m._t0 = null;
     mk.querySelector('.slot').innerHTML = cardHTML(res, { card: 'empty' });
@@ -507,6 +566,7 @@ function seg(id, key) {
 }
 seg('brand', 'brand');
 render();
+document.fonts.ready.then(() => fixDividers());
 </script>
 </body>
 </html>
