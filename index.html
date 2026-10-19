@@ -15,7 +15,7 @@
     --btn: #EBBC5E; --btn-ink: rgba(17,17,17,.88); --accent-text: #EBBC5E; --negative: #CC5B5A;
     --ray: 255,236,186; --dust: 255,244,214;
     /* market tokens: same gradients in both brands, only these values change */
-    --claim-glow-0: rgba(235,188,94,.26); --claim-glow-100: rgba(235,188,94,0); --claim-safe-glow: rgba(235,188,94,.57);
+    --claim-glow: 235,188,94; --claim-safe-op: .4; --promo-fill-0: #292D32; --promo-stroke-200: #3C4149;
     --story-glow-0: rgba(235,188,94,.28); --story-glow-100: rgba(235,188,94,0); --story-orb: rgba(235,188,94,.34);
     /* safe image inside the fixed 80 / 64 px container, as the Pari mockups */
     --ic-open: 100%; --ic-closed: 90%; --ic-closed-s64: 111%;
@@ -23,7 +23,7 @@
   body[data-brand="pari"] {
     --btn: #00C7B1; --btn-ink: #171717; --accent-text: #1FAD9E;
     --ray: 255,255,255; --dust: 236,250,250;
-    --claim-glow-0: rgba(255,255,255,.24); --claim-glow-100: rgba(255,255,255,0); --claim-safe-glow: rgba(255,255,255,.2);
+    --claim-glow: 255,255,255;
     --story-glow-0: rgba(255,255,255,.14); --story-glow-100: rgba(255,255,255,0); --story-orb: rgba(255,255,255,.16);
   }
   * { box-sizing: border-box; }
@@ -107,8 +107,9 @@
   .mrow .st { font-size: 16px; line-height: 20px; font-weight: 500; color: #fff; }
 
   /* claim card */
-  .card { position: relative; border-radius: 12px; padding: 14px; box-shadow: inset 0 0 0 2px var(--w8);
-    background: radial-gradient(var(--gs) at var(--gx) var(--gy), var(--claim-glow-0) 0, var(--claim-glow-100) 80%), var(--w4); }
+  /* card: promo-dark fill/0 + stroke/200; glow = claim/glow token, opacity on the layer (26%) */
+  .card { position: relative; border-radius: 12px; padding: 14px; box-shadow: inset 0 0 0 2px var(--promo-stroke-200);
+    background: radial-gradient(var(--gs) at var(--gx) var(--gy), rgba(var(--claim-glow),.26) 0, rgba(var(--claim-glow),0) 80%), var(--promo-fill-0); }
   .card.d { --gs: 35% 89%; --gx: 10%; --gy: 50%; display: flex; align-items: center; gap: 12px; }
   .card.m { --gs: 40% 83%; --gx: 16%; --gy: 42%; display: grid; gap: 12px; }
   .card .row { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
@@ -117,7 +118,7 @@
   .ic.closed { --isz: var(--ic-closed); }
   .ic.closed.s64 { --isz: var(--ic-closed-s64); }
   .ic.s64 { width: 64px; height: 64px; }
-  .ic::before { content: ""; position: absolute; left: 47%; top: 52%; width: 90%; height: 90%; translate: -50% -50%; border-radius: 50%; background: var(--claim-safe-glow); filter: blur(16px); }
+  .ic::before { content: ""; position: absolute; left: 47%; top: 52%; width: 90%; height: 90%; translate: -50% -50%; border-radius: 50%; background: rgb(var(--claim-glow)); opacity: var(--claim-safe-op); filter: blur(16px); }
   .ic img { position: absolute; left: 50%; top: 50%; width: var(--isz); height: var(--isz); translate: -50% -50%; object-fit: contain; }
   .lbl { display: flex; align-items: center; gap: 6px; font-size: 14px; line-height: 18px; font-weight: 500; color: var(--w64); }
   .vals { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--gap, 8px); margin-top: 4px; color: #fff; }
